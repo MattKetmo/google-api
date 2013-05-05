@@ -2,6 +2,7 @@
 
 namespace Google\UrlShortener;
 
+use Google\Common\Authentication\ApiKeyListener;
 use Guzzle\Common\Collection;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
@@ -31,6 +32,10 @@ class UrlShortenerClient extends Client
 
         $description = ServiceDescription::factory(__DIR__.'/Resources/service.php');
         $client->setDescription($description);
+
+        if (isset($data['api_key'])) {
+            $client->addSubscriber(new ApiKeyListener($data['api_key']));
+        }
 
         return $client;
     }
