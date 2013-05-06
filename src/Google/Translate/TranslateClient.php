@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Google\UrlShortener;
+namespace Google\Translate;
 
 use Google\Common\Authentication\ApiKeyListener;
 use Guzzle\Common\Collection;
@@ -19,7 +19,7 @@ use Guzzle\Service\Description\ServiceDescription;
 /**
  * @author Matthieu Moquet <matthieu@moquet.net>
  */
-class UrlShortenerClient extends Client
+class TranslateClient extends Client
 {
     /**
      * Build the client from given configuration.
@@ -31,9 +31,9 @@ class UrlShortenerClient extends Client
     public static function factory($data = array())
     {
         $default = array(
-            'base_url' => '{scheme}://www.googleapis.com/urlshortener/{version}',
+            'base_url' => '{scheme}://www.googleapis.com/language/translate/{version}',
             'scheme'   => 'https',
-            'version'  => 'v1',
+            'version'  => 'v2',
         );
 
         $config = Collection::fromConfig($data, $default, $required);
@@ -50,32 +50,27 @@ class UrlShortenerClient extends Client
     }
 
     /**
-     * Shorten an URL.
+     * Tranlsate a query string.
      *
-     * @param string $url The URL to shorten
+     * @param strin $query  The query to translate
+     * @param string $source The source language
+     * @param string $target The target language
      *
-     * @return string The short URL
+     * @return string The translated text
      */
-    public function encode($url)
+    public function translate($query, $source, $target)
     {
-        $command = $this->getCommand('EncodeUrl', array('longUrl' => $url));
+        $command = $this->getCommand('Translate', array(
+            'q'      => $query,
+            'source' => $source,
+            'target' => $target,
+        ));
+
         $response = $this->execute($command);
 
-        return $response['id'];
-    }
+        $translations = $response['data']['translations'];
+        $translatedText = $translations[0]['translatedText'];
 
-    /**
-     * Decode an URL.
-     *
-     * @param string $url The URL to decode
-     *
-     * @return string The decoded URL
-     */
-    public function decode($url)
-    {
-        $command = $this->getCommand('DecodeUrl', array('shortUrl' => $url));
-        $response = $this->execute($command);
-
-        return $response['longUrl'];
+        return $translatedText;
     }
 }
